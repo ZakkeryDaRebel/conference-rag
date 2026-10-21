@@ -63,9 +63,9 @@ USING (true);
 
 ### 🧪 Hands-On: See RLS in Action
 
-After the script completes, try this experiment. Ask your AI assistant to help you write a quick Python snippet that uses **just the anon key** (not the service key) to:
+After the script completes, try this experiment. Ask your AI assistant to help you write a quick Python snippet that uses **just the publishable key** (not the secret key) to:
 
-1. **Query `page_views`** → ✅ Should work! The anon key can read this table.
+1. **Query `page_views`** → ✅ Should work! The publishable key can read this table.
 2. **Query `sentence_embeddings`** → ❌ Should return **zero rows**! RLS blocks unauthenticated access.
 
 Here's a starting point:
@@ -77,8 +77,8 @@ import json
 with open('config.public.json') as f:
     public = json.load(f)
 
-# Connect with the ANON key (not service key!)
-client = create_client(public['SUPABASE_URL'], public['SUPABASE_ANON_KEY'])
+# Connect with the publishable key (not secret key!)
+client = create_client(public['SUPABASE_URL'], public['SUPABASE_PUBLISHABLE_KEY'])
 
 # This works — page_views has a public SELECT policy
 result = client.table('page_views').select('*').limit(5).execute()
@@ -91,7 +91,7 @@ print(f"sentence_embeddings: {len(result.data)} rows (expected: 0) 🔒")
 
 > 💡 **Try it!** Seeing the output first-hand makes the RLS concept click.
 
-> 🤔 **Think about it**: The anon key is in your `config.public.json`. Anyone can see it. So why is your data still safe?
+> 🤔 **Think about it**: The publishable key is in your `config.public.json`. Anyone can see it. So why is your data still safe?
 
 ### The Security Model
 
@@ -99,7 +99,7 @@ print(f"sentence_embeddings: {len(result.data)} rows (expected: 0) 🔒")
 ┌────────────────────────────────────────┐
 │ Supabase-Managed Security              │
 │                                        │
-│  anon key → RLS decides what you see   │
+│  publishable key → RLS decides access  │
 │  ┌─────────────────┐  ┌────────────┐  │
 │  │ page_views      │  │ embeddings │  │
 │  │ 🌍 public read  │  │ 🔒 auth    │  │

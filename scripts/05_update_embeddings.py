@@ -14,8 +14,8 @@ Input:
     scripts/output/sentences_with_embeddings.json  — from Step 4
 
 Prerequisites:
-    - config.public.json with Supabase URL and anon key
-    - config.secret.json with Supabase service key
+    - config.public.json with Supabase URL and publishable key
+    - config.secret.json with Supabase secret key
     - Database schema created (Step 1)
     - Embeddings generated (Step 4)
 """
@@ -62,7 +62,7 @@ def main():
 
     # Connect to Supabase
     public_config, secrets = load_config()
-    client = create_client(public_config['SUPABASE_URL'], secrets['SUPABASE_SERVICE_KEY'])
+    client = create_client(public_config['SUPABASE_URL'], secrets['SUPABASE_SECRET_KEY'])
 
     # Truncate existing data and re-import everything
     print("\n" + "=" * 60)

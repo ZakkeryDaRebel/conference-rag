@@ -18,8 +18,8 @@ Output:
     scripts/output/sentences.json  — sentence records with talk_id + sentence_num
 
 Prerequisites:
-    - config.public.json with Supabase URL and anon key
-    - config.secret.json with Supabase service key
+    - config.public.json with Supabase URL and publishable key
+    - config.secret.json with Supabase secret key
     - Database schema created (Step 1)
     - Talks scraped (Step 2)
 """
@@ -100,7 +100,7 @@ def main():
 
     # Connect to Supabase
     public_config, secrets = load_config()
-    client = create_client(public_config['SUPABASE_URL'], secrets['SUPABASE_SERVICE_KEY'])
+    client = create_client(public_config['SUPABASE_URL'], secrets['SUPABASE_SECRET_KEY'])
 
     # Check for existing data and truncate if needed
     print("\n" + "=" * 60)

@@ -9,8 +9,8 @@ Usage:
     python scripts/01_create_schema.py
 
 Prerequisites:
-    - config.public.json with Supabase URL and anon key
-    - config.secret.json with Supabase service key, access token, and project ref
+    - config.public.json with Supabase URL and publishable key
+    - config.secret.json with Supabase secret key, access token, and project ref
     - Supabase project created
 """
 
@@ -25,7 +25,7 @@ with open('config.secret.json', 'r') as f:
     secrets = json.load(f)
 
 SUPABASE_URL = public_config['SUPABASE_URL']
-SUPABASE_SERVICE_KEY = secrets['SUPABASE_SERVICE_KEY']
+SUPABASE_SECRET_KEY = secrets['SUPABASE_SECRET_KEY']
 SUPABASE_ACCESS_TOKEN = secrets['SUPABASE_ACCESS_TOKEN']
 SUPABASE_PROJECT_REF = secrets['SUPABASE_PROJECT_REF']
 
@@ -144,7 +144,7 @@ $$;
         return False
 
     # Verify table exists via PostgREST
-    client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+    client = create_client(SUPABASE_URL, SUPABASE_SECRET_KEY)
     for attempt in range(5):
         try:
             result = client.table('sentence_embeddings').select('id', count='exact').limit(1).execute()

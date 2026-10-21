@@ -39,8 +39,8 @@ Answer these in your submission. Use your AI assistant to discuss these — it c
 ### 1. Security Architecture ⭐⭐⭐⭐⭐
 
 Draw or describe a diagram showing what protects each sensitive asset in this application. Your answer should address:
-- Why is the anon key safe to expose in `config.public.json`?
-- What would happen if someone got the service role key?
+- Why is the publishable key safe to expose in `config.public.json`?
+- What would happen if someone got the secret key?
 - How do Edge Functions protect the OpenAI API key?
 - What role does Row Level Security play?
 

@@ -80,7 +80,7 @@ conference-rag/
 ├── app.js                      # Three search modes + auth logic
 ├── styles.css                  # Dark theme styling
 ├── config.js                   # Loads config.public.json for browser
-├── config.public.json          # Supabase URL + anon key (safe to commit)
+├── config.public.json          # Supabase URL + publishable key (safe to commit)
 ├── config.secret.json          # API keys & secrets (git-ignored, YOU create this)
 ├── config.secret.example.json  # Template for config.secret.json
 ├── requirements.txt            # Python dependencies
@@ -107,7 +107,7 @@ conference-rag/
 
 | Component | Security Approach |
 |-----------|------------------|
-| Supabase anon key | Safe to expose in `config.public.json` (protected by RLS) |
+| Supabase publishable key | Safe to expose in `config.public.json` (protected by RLS) |
 | OpenAI API key | Server-side only via Edge Functions (in `config.secret.json`) |
 | Database access | Row Level Security policies |
 | Transport | HTTPS enforced by GitHub Pages |
@@ -133,7 +133,7 @@ conference-rag/
 
 | Issue | Solution |
 |-------|----------|
-| "Please configure Supabase" | Update `config.public.json` with your project URL and anon key |
+| "Please configure Supabase" | Update `config.public.json` with your project URL and publishable key |
 | Magic link not working | Add your site URL to Supabase → Authentication → URL Configuration |
 | Magic link email not arriving | Free tier allows only **3 per hour** — wait and try again, check spam |
 | Changes don't appear | Hard refresh (Ctrl+Shift+R) or try incognito window |
