@@ -1,67 +1,46 @@
-import { getAuthenticatedUserId } from "../_shared/auth.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { corsHeaders } from "../_shared/cors.ts";
+import { requireAuth } from "../_shared/auth.ts";
 
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "application/json",
-    },
-  });
-}
-
-Deno.serve(async (request: Request): Promise<Response> => {
-  if (request.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  if (request.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
-  }
-
-  let userId: string | null;
-  try {
-    userId = await getAuthenticatedUserId(
-      request.headers.get("Authorization"),
-    );
-  } catch (error) {
-    console.error("Could not verify the Supabase user:", error);
-    return jsonResponse({ error: "Authentication service unavailable" }, 503);
-  }
-
-  if (!userId) {
-    return jsonResponse({ error: "Authentication required" }, 401);
-  }
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return jsonResponse({ error: "Request body must be valid JSON" }, 400);
-  }
-
-  const question =
-    typeof body === "object" && body !== null && "question" in body &&
-      typeof body.question === "string"
-      ? body.question.trim()
-      : "";
-
-  if (!question) {
-    return jsonResponse({ error: 'A non-empty "question" is required' }, 400);
-  }
-
-  const openAiApiKey = Deno.env.get("OPENAI_API_KEY");
-  if (!openAiApiKey) {
-    console.error("OPENAI_API_KEY is not configured");
-    return jsonResponse({ error: "Embedding service is not configured" }, 500);
-  }
+  // Verify authenticated user
+  const authResult = await requireAuth(req);
+  if ("error" in authResult) return authResult.error;
 
   try {
-    const openAiResponse = await fetch("https://api.openai.com/v1/embeddings", {
+    const { question } = await req.json();
+
+    if (!question || typeof question !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid 'question' field" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    const openaiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!openaiKey) {
+      return new Response(
+        JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // Call OpenAI Embeddings API
+    const response = await fetch("https://api.openai.com/v1/embeddings", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${openAiApiKey}`,
+        Authorization: `Bearer ${openaiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -70,28 +49,27 @@ Deno.serve(async (request: Request): Promise<Response> => {
       }),
     });
 
-    if (!openAiResponse.ok) {
-      console.error(`OpenAI embedding request returned HTTP ${openAiResponse.status}`);
-      return jsonResponse({ error: "Could not generate embedding" }, 502);
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return new Response(
+        JSON.stringify({ error: err.error?.message || "OpenAI API error" }),
+        {
+          status: response.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    const result: unknown = await openAiResponse.json();
-    const embedding =
-      typeof result === "object" && result !== null && "data" in result &&
-        Array.isArray(result.data) && result.data.length > 0 &&
-        typeof result.data[0] === "object" && result.data[0] !== null &&
-        "embedding" in result.data[0]
-        ? result.data[0].embedding
-        : null;
+    const data = await response.json();
+    const embedding = data.data[0].embedding;
 
-    if (!Array.isArray(embedding)) {
-      console.error("OpenAI response did not contain an embedding array");
-      return jsonResponse({ error: "Could not generate embedding" }, 502);
-    }
-
-    return jsonResponse({ embedding });
-  } catch (error) {
-    console.error("OpenAI embedding request failed:", error);
-    return jsonResponse({ error: "Embedding service unavailable" }, 502);
+    return new Response(JSON.stringify({ embedding }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
