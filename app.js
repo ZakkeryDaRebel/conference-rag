@@ -341,9 +341,9 @@ async function checkSearchReadiness() {
         if (hasEmbeddings) {
             try {
                 const { data, error: fnError } = await supabaseClient.functions.invoke('embed-question', {
-                    body: { question: 'test' }
+                    body: { action: 'health-check' }
                 });
-                semanticReady = !fnError;
+                semanticReady = !fnError && data?.ready === true;
             } catch {
                 // CORS or network error → function not deployed
             }
