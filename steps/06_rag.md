@@ -94,12 +94,12 @@ You should get an AI-generated answer with source citations!
 
 ## Verification
 
-- [ ] `generate-answer` function deployed without errors
-- [ ] All three search panels show **🟢 Ready**
-- [ ] Keyword search returns relevant results
-- [ ] Semantic search returns results even for non-exact-match queries
-- [ ] RAG returns an AI-generated answer with talk citations
-- [ ] 📸 **Take a screenshot** of a working RAG query — you'll need this for submission!
+- [X] `generate-answer` function deployed without errors
+- [X] All three search panels show **🟢 Ready**
+- [X] Keyword search returns relevant results
+- [X] Semantic search returns results even for non-exact-match queries
+- [X] RAG returns an AI-generated answer with talk citations
+- [X] 📸 **Take a screenshot** of a working RAG query — you'll need this for submission!
 
 ## 🎉 Milestone: All lights green! Your RAG app is complete!
 
