@@ -83,6 +83,50 @@ const ragInput = document.getElementById('rag-input');
 const ragBtn = document.getElementById('rag-btn');
 const ragResults = document.getElementById('rag-results');
 const ragStatus = document.getElementById('rag-status');
+const topQuestionsList = document.getElementById('top-questions-list');
+
+// ============================================
+// MOST ASKED QUESTIONS
+// ============================================
+
+async function loadTopQuestions() {
+    if (!supabaseClient || !topQuestionsList) return;
+
+    try {
+        const { data, error } = await supabaseClient.rpc('get_top_questions');
+        if (error) throw error;
+
+        topQuestionsList.replaceChildren();
+        if (!data || data.length === 0) {
+            const item = document.createElement('li');
+            item.className = 'top-questions-message';
+            item.textContent = 'No questions have been asked yet.';
+            topQuestionsList.appendChild(item);
+            return;
+        }
+
+        for (const entry of data.slice(0, 5)) {
+            const item = document.createElement('li');
+            const question = document.createElement('span');
+            question.className = 'top-question-text';
+            question.textContent = entry.question;
+
+            const count = document.createElement('span');
+            count.className = 'top-question-count';
+            count.textContent = `${entry.asked_count} ${entry.asked_count === 1 ? 'ask' : 'asks'}`;
+
+            item.append(question, count);
+            topQuestionsList.appendChild(item);
+        }
+    } catch (error) {
+        console.warn('Could not load most asked questions:', error.message);
+        topQuestionsList.replaceChildren();
+        const item = document.createElement('li');
+        item.className = 'top-questions-message';
+        item.textContent = 'Popular questions are unavailable right now.';
+        topQuestionsList.appendChild(item);
+    }
+}
 
 // ============================================
 // SETUP BANNER DETECTION
@@ -286,6 +330,7 @@ function showApp(user) {
     if (userEmailSpan) userEmailSpan.textContent = user.email;
     // Check search readiness when user logs in
     checkSearchReadiness();
+    loadTopQuestions();
 }
 
 function showMessage(text, type) {
@@ -593,6 +638,9 @@ async function getEmbedding(text) {
         throw new Error(data?.error || 'Failed to get embedding');
     }
 
+    // The cache records/increments the question before this function responds.
+    // Refresh without delaying the search result.
+    loadTopQuestions();
     return data.embedding;
 }
 

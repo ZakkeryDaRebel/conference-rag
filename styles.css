@@ -458,6 +458,56 @@ input:focus {
     padding: var(--spacing-lg) 0;
 }
 
+.popular-questions {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background: var(--surface);
+    border: 2px solid var(--surface-light);
+    border-radius: var(--radius-lg);
+}
+
+.popular-questions-header h3 {
+    color: var(--text);
+    font-size: 1.25rem;
+}
+
+.popular-questions .panel-description {
+    margin: var(--spacing-xs) 0 var(--spacing-sm);
+}
+
+.top-questions-list {
+    list-style-position: inside;
+    display: grid;
+    gap: var(--spacing-xs);
+}
+
+.top-questions-list li {
+    padding: 0.75rem var(--spacing-sm);
+    background: var(--background);
+    border-radius: var(--radius-sm);
+}
+
+.top-questions-list li:not(.top-questions-message) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.top-question-text {
+    overflow-wrap: anywhere;
+}
+
+.top-question-count {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.top-questions-message {
+    color: var(--text-muted);
+}
+
 .search-panel {
     background: var(--surface);
     border-radius: var(--radius-lg);
